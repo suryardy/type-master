@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TypeMaster Local - Premium Typing Practice</title>
+  <meta name="description" content="Offline, responsive typing practice dashboard similar to Monkeytype. Enhance your typing speed, WPM, accuracy and track analytics locally.">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-dark font-sans" id="body-container">
+  
+  <!-- Canvas for Confetti -->
+  <canvas id="confetti-canvas" class="pointer-events-none fixed inset-0 z-50"></canvas>
+  <!-- Main Grid Wrapper -->
+  <div class="app-wrapper">
+    
+    <!-- Top Header -->
+    <header class="main-header glass-card" role="banner">
+      <div class="header-left">
+        <div class="logo-container" id="logo-home">
+          <svg class="logo-icon" viewBox="0 0 24 24" width="24" height="24">
+            <rect x="2" y="4" width="20" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
+            <rect x="5" y="7" width="2" height="2" rx="0.5" fill="currentColor"/>
+            <rect x="8" y="7" width="2" height="2" rx="0.5" fill="currentColor"/>
+            <rect x="11" y="7" width="2" height="2" rx="0.5" fill="currentColor"/>
+            <rect x="14" y="7" width="2" height="2" rx="0.5" fill="currentColor"/>
+            <rect x="17" y="7" width="2" height="2" rx="0.5" fill="currentColor"/>
+            <rect x="6" y="11" width="2" height="2" rx="0.5" fill="currentColor"/>
+            <rect x="9" y="11" width="2" height="2" rx="0.5" fill="currentColor"/>
+            <rect x="12" y="11" width="2" height="2" rx="0.5" fill="currentColor"/>
+            <rect x="15" y="11" width="2" height="2" rx="0.5" fill="currentColor"/>
+            <rect x="8" y="15" width="8" height="2" rx="1" fill="currentColor"/>
+          </svg>
+          <span class="logo-text">TypeMaster <span class="logo-sub">Local</span></span>
+        </div>
+        <nav class="nav-links" role="navigation" aria-label="Main Navigation">
+          <button class="nav-btn active" data-target="home-view" id="nav-home" aria-label="Navigate to Home">Home</button>
+          <button class="nav-btn" data-target="practice-view" id="nav-practice" aria-label="Navigate to Practice Mode">Practice</button>
+          <button class="nav-btn" data-target="leaderboard-view" id="nav-leaderboard" aria-label="Navigate to Leaderboard">Leaderboard</button>
+          <button class="nav-btn" data-target="analytics-view" id="nav-analytics" aria-label="Navigate to Analytics">Analytics</button>
+          <button class="nav-btn" data-target="profile-view" id="nav-profile" aria-label="Navigate to Profile">Profile</button>
+        </nav>
+      </div>
+      <div class="header-right">
+        <!-- Quick stats -->
+        <div class="header-stat" id="header-streak" title="Daily Typing Streak">
+          <span class="stat-icon">🔥</span>
+          <span class="stat-value" id="streak-count">0</span>
+        </div>
+        <!-- Quick actions -->
+        <button class="icon-btn" id="sound-toggle-btn" title="Toggle Sound (Muted)" aria-label="Toggle sound effects">
+          <svg class="icon" viewBox="0 0 24 24" width="20" height="20">
+            <!-- Muted Speaker Icon -->
+            <path id="sound-icon-path" fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="fullscreen-btn" title="Toggle Fullscreen" aria-label="Toggle fullscreen mode">
+          <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+          </svg>
+        </button>
+        <!-- Theme Quick Selector -->
+        <div class="theme-quick-select">
+          <select id="quick-theme-select" aria-label="Switch Theme">
+            <option value="theme-dark">Dark</option>
+            <option value="theme-light">Light</option>
+            <option value="theme-blue">Blue</option>
+            <option value="theme-purple">Purple</option>
+            <option value="theme-green">Green</option>
+            <option value="theme-cyber">Cyber</option>
+          </select>
+        </div>
+        <button class="icon-btn" id="settings-btn" title="Open Settings" aria-label="Open settings panel">
+          <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+    <!-- Main Content Area -->
+    <main class="main-content" id="view-container">
+      
+      <!-- 1. LANDING/HOME VIEW -->
+      <section id="home-view" class="view-section active-view">
+        <div class="hero-container">
+          <div class="hero-text-content">
+            <h1 class="hero-title">Elevate Your <span class="text-gradient">Typing Speed</span> Completely Offline</h1>
+            <p class="hero-subtitle">TypeMaster Local provides a premium, customized typing experience directly in your browser. No internet needed. No lag. Track your journey with detailed local metrics.</p>
+            <div class="hero-buttons">
+              <button class="btn btn-primary btn-lg ripple" id="hero-start-btn">Start Typing Practice</button>
+              <button class="btn btn-secondary btn-lg" id="hero-challenge-btn">Daily Challenge</button>
+            </div>
+          </div>
+          <div class="hero-visual glass-card">
+            <!-- Simulated Typing Animation -->
+            <div class="simulated-typing">
+              <div class="typing-header">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+                <span class="typing-tab">practice_session.txt</span>
+              </div>
+              <div class="typing-body font-mono">
+                <span class="correct">the</span> <span class="correct">quick</span> <span class="correct">brown</span> <span class="correct">fox</span> <span class="incorrect">jumpss</span> <span class="current">o<span class="caret cursor-pulse"></span>ver</span> the lazy dog...
+              </div>
+              <div class="typing-stats-preview">
+                <div class="preview-stat">
+                  <span class="stat-lbl">WPM</span>
+                  <span class="stat-num color-accent">87</span>
+                </div>
+                <div class="preview-stat">
+                  <span class="stat-lbl">Accuracy</span>
+                  <span class="stat-num">98.4%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Features Showcase -->
+        <div class="features-section">
+          <h2 class="section-title text-center">Engineered for Fast Learning</h2>
+          <div class="features-grid">
+            <div class="feature-card glass-card">
+              <div class="feature-icon">📂</div>
+              <h3>Multiple Layouts & Modes</h3>
+              <p>Practice in English, Hindi, or Telugu across QWERTY, AZERTY, and QWERTZ layouts. Type code, symbols, or custom text.</p>
+            </div>
+            <div class="feature-card glass-card">
+              <div class="feature-icon">📊</div>
+              <h3>Detailed Analytics</h3>
+              <p>Explore your performance over time. View daily, weekly, and monthly progress graphs with average accuracy, WPM, and key mistakes.</p>
+            </div>
+            <div class="feature-card glass-card">
+              <div class="feature-icon">🔊</div>
+              <h3>Web Audio Engine</h3>
+              <p>Dynamic acoustic keyboard sounds generate click, error buzz, and success chime tones natively without downloading audio files.</p>
+            </div>
+            <div class="feature-card glass-card">
+              <div class="feature-icon">🛡️</div>
+              <h3>Privacy Centered</h3>
+              <p>All data stays 100% in your browser's local storage. No trackers, no accounts, no server uploads, fully functional offline.</p>
+            </div>
+          </div>
+        </div>
+        <!-- Quick Leaderboard / Stats preview -->
+        <div class="quick-stats-preview glass-card">
+          <div class="quick-stats-header">
+            <h3>Leaderboard Snapshot</h3>
+            <button class="btn btn-text" id="view-all-scores-btn">View Full Leaderboard &rarr;</button>
+          </div>
+          <div class="table-container">
+            <table class="leaderboard-table compact-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Name</th>
+                  <th>Mode</th>
+                  <th>WPM</th>
+                  <th>Accuracy</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="quick-leaderboard-body">
+                <!-- Loaded via JS -->
+                <tr>
+                  <td colspan="6" class="text-center text-muted">No practice tests logged yet. Start typing to set a record!</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <!-- 2. PRACTICE DASHBOARD VIEW -->
+      <section id="practice-view" class="view-section">
+        
+        <!-- Practice Control Bar (Monkeytype menu style) -->
+        <div class="practice-controls glass-card" id="practice-controls-bar">
+          <!-- Modes Row -->
+          <div class="control-group" id="mode-selector">
+            <span class="control-label">Mode:</span>
+            <button class="control-option active" data-mode="words">English Words</button>
+            <button class="control-option" data-mode="paragraphs">Paragraphs</button>
+            <button class="control-option" data-mode="numbers">Numbers</button>
+            <button class="control-option" data-mode="symbols">Symbols</button>
+            <button class="control-option" data-mode="custom">Custom Text</button>
+            <button class="control-option" data-mode="code">Code Typing</button>
+          </div>
+          <div class="control-divider"></div>
+          <!-- Dynamic Sub-Options (Will render based on selected mode) -->
+          <div class="control-group hide" id="difficulty-selector">
+            <span class="control-label">Difficulty:</span>
+            <button class="control-option active" data-diff="easy">Easy</button>
+            <button class="control-option" data-diff="medium">Medium</button>
+            <button class="control-option" data-diff="hard">Hard</button>
+          </div>
+          <div class="control-group hide" id="paragraph-category-selector">
+            <span class="control-label">Category:</span>
+            <button class="control-option active" data-cat="general">General</button>
+            <button class="control-option" data-cat="technology">Technology</button>
+            <button class="control-option" data-cat="programming">Programming</button>
+            <button class="control-option" data-cat="history">History</button>
+            <button class="control-option" data-cat="science">Science</button>
+            <button class="control-option" data-cat="quotes">Quotes</button>
+          </div>
+          <div class="control-group hide" id="code-language-selector">
+            <span class="control-label">Language:</span>
+            <button class="control-option active" data-lang="python">Python</button>
+            <button class="control-option" data-lang="javascript">JavaScript</button>
+            <button class="control-option" data-lang="java">Java</button>
+            <button class="control-option" data-lang="cpp">C++</button>
+            <button class="control-option" data-lang="c">C</button>
+          </div>
+          <!-- Timer selection -->
+          <div class="control-group" id="timer-selector">
+            <span class="control-label">Time:</span>
+            <button class="control-option" data-time="15">15s</button>
+            <button class="control-option active" data-time="30">30s</button>
+            <button class="control-option" data-time="60">60s</button>
+            <button class="control-option" data-time="120">120s</button>
+            <button class="control-option" data-time="custom" id="custom-time-btn">Custom</button>
+          </div>
+          <!-- Language Selection -->
+          <div class="control-group" id="language-selector">
+            <span class="control-label">Language:</span>
+            <button class="control-option active" data-lang-opt="english">EN</button>
+            <button class="control-option" data-lang-opt="hindi">हिन्दी</button>
+            <button class="control-option" data-lang-opt="telugu">తెలుగు</button>
+          </div>
+        </div>
+        <!-- Custom Text Input Panel (Hidden unless Custom mode selected) -->
+        <div class="custom-text-panel glass-card hide" id="custom-text-panel">
+          <label for="custom-text-input" class="form-label">Paste your custom practice text here:</label>
+          <textarea id="custom-text-input" placeholder="Type or paste any text here and press 'Start' to practice..."></textarea>
+          <button class="btn btn-primary btn-sm mt-10" id="apply-custom-text-btn">Load Practice Text</button>
+        </div>
+        <!-- Mode Indicator / Zen bar -->
+        <div class="practice-status-bar">
+          <div class="status-left">
+            <span class="practice-mode-tag" id="current-mode-indicator">English Words (Easy)</span>
+            <span class="pause-status-lbl hide" id="pause-indicator">| PAUSED</span>
+          </div>
+          <div class="status-right">
+            <!-- Focus & Zen mode icons -->
+            <button class="toggle-btn-small" id="zen-mode-toggle" title="Zen Mode (Hide stats while typing)" aria-label="Toggle zen mode">
+              🧘‍♂️ Zen
+            </button>
+            <button class="toggle-btn-small" id="focus-mode-toggle" title="Focus Mode (Hide header and virtual keyboard)" aria-label="Toggle focus mode">
+              👁️ Focus
+            </button>
+          </div>
+        </div>
+        <!-- Countdown Overlay -->
+        <div class="countdown-overlay hide" id="countdown-overlay">
+          <div class="countdown-number" id="countdown-number">3</div>
+          <div class="countdown-sub">Get ready to type...</div>
+        </div>
+        <!-- Typing Test Typing Card -->
+        <div class="typing-container-card glass-card" id="typing-card">
+          <!-- Live metrics header (hidden in Zen mode when typing) -->
+          <div class="metrics-row" id="practice-metrics">
+            <div class="metric-box">
+              <span class="metric-val text-gradient" id="live-wpm">0</span>
+              <span class="metric-lbl">WPM</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-val" id="live-accuracy">100%</span>
+              <span class="metric-lbl">ACC</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-val" id="live-time">30</span>
+              <span class="metric-lbl">SEC</span>
+            </div>
+            <!-- Progress Bar inside the container -->
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill" id="progress-bar"></div>
+            </div>
+          </div>
+          <!-- Core interactive text area -->
+          <div class="typing-text-wrapper" id="typing-wrapper" tabindex="0" aria-label="Typing practice area. Focus here to start typing.">
+            <!-- Invisible input for mobile and focus trapping -->
+            <input type="text" id="typing-hidden-input" autocomplete="off" autocapitalize="off" spellcheck="false" aria-hidden="true" tabindex="-1">
+            <div class="typing-words" id="words-container">
+              <!-- Words will be rendered via JS -->
+              <div class="words-loader">Loading words database...</div>
+            </div>
+          </div>
+          <!-- Bottom Control Bar (Restart, Pause) -->
+          <div class="typing-card-footer">
+            <button class="btn btn-icon-text" id="restart-test-btn" title="Restart test (Esc)">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+              </svg>
+              <span>Restart (Esc)</span>
+            </button>
+            <button class="btn btn-icon-text hide" id="pause-test-btn" title="Pause Practice">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/>
+                <rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor"/>
+              </svg>
+              <span>Pause</span>
+            </button>
+            <button class="btn btn-icon-text hide" id="resume-test-btn" title="Resume Practice">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21" fill="currentColor"/>
+              </svg>
+              <span>Resume</span>
+            </button>
+          </div>
+        </div>
+        <!-- Interactive Virtual Keyboard -->
+        <div class="keyboard-container glass-card" id="virtual-keyboard-card">
+          <div class="keyboard-controls">
+            <div class="keyboard-preset">
+              <label for="keyboard-layout-select" class="sr-only">Layout</label>
+              <select id="keyboard-layout-select" class="small-select" aria-label="Change Virtual Keyboard Layout">
+                <option value="qwerty">QWERTY</option>
+                <option value="qwertz">QWERTZ</option>
+                <option value="azerty">AZERTY</option>
+              </select>
+            </div>
+            <div class="keyboard-status font-mono">
+              <span id="caps-lock-indicator" class="k-status-indicator">CAPS</span>
+              <span id="shift-indicator" class="k-status-indicator">SHIFT</span>
+            </div>
+          </div>
+          <!-- Keyboard Grid (Will be generated dynamically or structured in style/html) -->
+          <div class="virtual-keyboard" id="keyboard-grid" aria-hidden="true">
+            <!-- Rendered by JS based on layouts -->
+          </div>
+        </div>
+        <!-- Result View Pane (Fades in over/instead of card on finish) -->
+        <div class="result-container-card glass-card hide" id="result-card">
+          <div class="result-header">
+            <h2 class="text-gradient">Performance Summary</h2>
+            <span class="result-grade" id="result-grade-badge">A+</span>
+          </div>
+          <div class="result-body">
+            <!-- Result Stats Columns -->
+            <div class="result-stats-grid">
+              <div class="res-stat-box highlight">
+                <span class="res-lbl">WPM</span>
+                <span class="res-val" id="res-wpm">0</span>
+              </div>
+              <div class="res-stat-box highlight">
+                <span class="res-lbl">Accuracy</span>
+                <span class="res-val" id="res-accuracy">0%</span>
+              </div>
+              <div class="res-stat-box">
+                <span class="res-lbl">Characters</span>
+                <span class="res-val text-sm" id="res-chars">0 (0 / 0)</span>
+                <span class="res-lbl-sub">total (correct/wrong)</span>
+              </div>
+              <div class="res-stat-box">
+                <span class="res-lbl">Words</span>
+                <span class="res-val text-sm" id="res-words">0 (0 / 0)</span>
+                <span class="res-lbl-sub">total (correct/wrong)</span>
+              </div>
+              <div class="res-stat-box">
+                <span class="res-lbl">Time Taken</span>
+                <span class="res-val text-sm" id="res-time">30s</span>
+              </div>
+              <div class="res-stat-box">
+                <span class="res-lbl">Mistakes</span>
+                <span class="res-val text-sm" id="res-mistakes">0</span>
+              </div>
+            </div>
+            <!-- Custom Graph Canvas -->
+            <div class="result-graph-box glass-card">
+              <h4 class="graph-title">Speed / Mistakes Timeline</h4>
+              <div class="canvas-wrapper">
+                <canvas id="wpm-timeline-chart"></canvas>
+              </div>
+              <div class="graph-legend">
+                <span class="legend-item"><span class="legend-color wpm-color"></span> WPM</span>
+                <span class="legend-item"><span class="legend-color error-color"></span> Mistakes</span>
+              </div>
+            </div>
+          </div>
+          <!-- Leaderboard entry dialog (embedded directly) -->
+          <div class="leaderboard-entry-card glass-card mt-15" id="leaderboard-save-panel">
+            <h4 class="mb-5">Submit Score to Leaderboard</h4>
+            <div class="flex flex-gap-10">
+              <input type="text" id="leaderboard-username-input" class="form-input" placeholder="Enter your name" maxlength="15" aria-label="Your Name for Leaderboard">
+              <button class="btn btn-primary" id="save-score-btn">Save Score</button>
+            </div>
+            <p class="text-xs text-muted mt-5" id="save-score-status"></p>
+          </div>
+          <div class="result-actions">
+            <button class="btn btn-primary btn-lg" id="result-restart-btn">Restart Test</button>
+            <button class="btn btn-secondary btn-lg" id="result-view-leaderboard-btn">Leaderboards</button>
+            <button class="btn btn-secondary btn-lg" id="result-profile-btn">View My Profile</button>
+          </div>
+        </div>
+      </section>
+      <!-- 3. LEADERBOARD VIEW -->
+      <section id="leaderboard-view" class="view-section">
+        <div class="view-header-row">
+          <h2 class="view-title">Local Leaderboard</h2>
+          <div class="flex flex-gap-10">
+            <label for="leaderboard-filter-mode" class="sr-only">Filter Mode</label>
+            <select id="leaderboard-filter-mode" class="form-select" aria-label="Filter Leaderboard by Typing Mode">
+              <option value="all">All Modes</option>
+              <option value="words">English Words</option>
+              <option value="paragraphs">Paragraphs</option>
+              <option value="numbers">Numbers</option>
+              <option value="symbols">Symbols</option>
+              <option value="custom">Custom Text</option>
+              <option value="code">Code Typing</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" id="clear-leaderboard-btn">Clear All Scores</button>
+          </div>
+        </div>
+        <div class="leaderboard-card glass-card">
+          <div class="table-container">
+            <table class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Name</th>
+                  <th>Date</th>
+                  <th>Mode</th>
+                  <th>WPM</th>
+                  <th>Accuracy</th>
+                </tr>
+              </thead>
+              <tbody id="full-leaderboard-body">
+                <!-- Loaded dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <!-- 4. ANALYTICS VIEW -->
+      <section id="analytics-view" class="view-section">
+        <div class="view-header-row">
+          <h2 class="view-title">Detailed Typing Analytics</h2>
+          <div class="flex flex-gap-10">
+            <button class="btn btn-secondary btn-sm" id="export-history-csv-btn">Export History (CSV)</button>
+            <button class="btn btn-secondary btn-sm" id="clear-history-btn">Reset Practice History</button>
+          </div>
+        </div>
+        <!-- Summary Grid -->
+        <div class="analytics-summary-grid">
+          <div class="stat-card glass-card">
+            <span class="lbl">Total Tests Taken</span>
+            <span class="val text-gradient" id="analytics-total-tests">0</span>
+          </div>
+          <div class="stat-card glass-card">
+            <span class="lbl">Total Practice Time</span>
+            <span class="val" id="analytics-total-time">0m</span>
+          </div>
+          <div class="stat-card glass-card">
+            <span class="lbl">All-Time Average WPM</span>
+            <span class="val" id="analytics-avg-wpm">0</span>
+          </div>
+          <div class="stat-card glass-card">
+            <span class="lbl">All-Time Avg Accuracy</span>
+            <span class="val" id="analytics-avg-acc">0%</span>
+          </div>
+        </div>
+        <!-- History Graphing Section -->
+        <div class="analytics-charts-grid">
+          <!-- Practice Volume Graph -->
+          <div class="chart-container-card glass-card">
+            <div class="chart-header">
+              <h3>Practice Activity (Tests Count)</h3>
+              <div class="chart-filters">
+                <button class="chart-filter-btn active" data-range="daily">Daily</button>
+                <button class="chart-filter-btn" data-range="weekly">Weekly</button>
+                <button class="chart-filter-btn" data-range="monthly">Monthly</button>
+              </div>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas id="practice-volume-chart"></canvas>
+            </div>
+          </div>
+          <!-- Speed & Accuracy Trends Graph -->
+          <div class="chart-container-card glass-card">
+            <div class="chart-header">
+              <h3>WPM & Accuracy History Trend</h3>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas id="wpm-trend-chart"></canvas>
+            </div>
+            <div class="graph-legend center">
+              <span class="legend-item"><span class="legend-color wpm-color"></span> WPM</span>
+              <span class="legend-item"><span class="legend-color acc-color"></span> Accuracy (%)</span>
+            </div>
+          </div>
+        </div>
+        <!-- Raw History Log Table -->
+        <div class="practice-history-card glass-card mt-20">
+          <h3>Practice Log</h3>
+          <div class="table-container max-height-300">
+            <table class="leaderboard-table compact-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Mode</th>
+                  <th>Speed (WPM)</th>
+                  <th>Accuracy</th>
+                  <th>Duration</th>
+                </tr>
+              </thead>
+              <tbody id="practice-history-body">
+                <!-- Logged via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <!-- 5. USER PROFILE VIEW -->
+      <section id="profile-view" class="view-section">
+        <div class="profile-layout">
+          
+          <!-- Profile Card Left -->
+          <div class="profile-card-left glass-card">
+            <div class="avatar-selection-wrapper">
+              <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%236366f1'/><text x='50' y='60' font-family='Arial' font-size='35' fill='white' text-anchor='middle'>👤</text></svg>" alt="User avatar" class="profile-avatar-img" id="profile-avatar-display">
+              <div class="avatar-options">
+                <button class="avatar-select-btn" data-avatar="👤">👤</button>
+                <button class="avatar-select-btn" data-avatar="⚡">⚡</button>
+                <button class="avatar-select-btn" data-avatar="🦊">🦊</button>
+                <button class="avatar-select-btn" data-avatar="🚀">🚀</button>
+                <button class="avatar-select-btn" data-avatar="🤖">🤖</button>
+                <button class="avatar-select-btn" data-avatar="🐱">🐱</button>
+              </div>
+            </div>
+            <div class="profile-details-editing">
+              <label for="profile-username-input" class="sr-only">Edit Username</label>
+              <input type="text" id="profile-username-input" class="form-input text-center font-bold text-lg" value="Typist Master" placeholder="Change Username" aria-label="Username">
+              <p class="profile-join-date text-muted text-center mt-5" id="profile-joined-lbl">Joined: Today</p>
+            </div>
+            <div class="streak-badge-container mt-15">
+              <div class="streak-large-box glass-card text-center">
+                <span class="streak-fire-icon">🔥</span>
+                <span class="streak-number-lbl" id="profile-streak-number">0 Days</span>
+                <span class="streak-lbl text-muted">Current Streak</span>
+              </div>
+            </div>
+          </div>
+          <!-- Achievements Badges Right -->
+          <div class="profile-card-right glass-card">
+            <h3>Achievements & Badges</h3>
+            <p class="text-muted mb-15">Unlock achievements to prove your typing dedication and keyboard mastery!</p>
+            <div class="badges-grid" id="achievements-badges-container">
+              <!-- Dynamically populated via script -->
+              <div class="badge-item locked" data-badge="first-test">
+                <div class="badge-icon">🏁</div>
+                <div class="badge-info">
+                  <h4>First Steps</h4>
+                  <p>Complete your first typing test.</p>
+                </div>
+              </div>
+              <div class="badge-item locked" data-badge="50-wpm">
+                <div class="badge-icon">⚡</div>
+                <div class="badge-info">
+                  <h4>Speed Demon I</h4>
+                  <p>Reach 50 WPM in any typing test.</p>
+                </div>
+              </div>
+              <div class="badge-item locked" data-badge="70-wpm">
+                <div class="badge-icon">🚀</div>
+                <div class="badge-info">
+                  <h4>Speed Demon II</h4>
+                  <p>Reach 70 WPM in any typing test.</p>
+                </div>
+              </div>
+              <div class="badge-item locked" data-badge="95-acc">
+                <div class="badge-icon">🎯</div>
+                <div class="badge-info">
+                  <h4>Marksman</h4>
+                  <p>Complete a test with 95% accuracy or higher.</p>
+                </div>
+              </div>
+              <div class="badge-item locked" data-badge="100-tests">
+                <div class="badge-icon">🏆</div>
+                <div class="badge-info">
+                  <h4>Centurion</h4>
+                  <p>Complete 100 typing tests total.</p>
+                </div>
+              </div>
+              <div class="badge-item locked" data-badge="7-streak">
+                <div class="badge-icon">📅</div>
+                <div class="badge-info">
+                  <h4>Week of Fire</h4>
+                  <p>Maintain a 7-day practice streak.</p>
+                </div>
+              </div>
+              <div class="badge-item locked" data-badge="1000-words">
+                <div class="badge-icon">📚</div>
+                <div class="badge-info">
+                  <h4>Wordsmith</h4>
+                  <p>Type a total of 1,000 correct words.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <!-- Global Settings Drawer / Modal (Controlled via Settings icon) -->
+    <div class="settings-modal-overlay hide" id="settings-modal">
+      <div class="settings-modal glass-card">
+        <div class="settings-modal-header">
+          <h3>Preferences & Settings</h3>
+          <button class="icon-btn close-modal-btn" id="close-settings-btn" aria-label="Close Settings">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="settings-modal-body">
+          <!-- Theme Setting -->
+          <div class="setting-row">
+            <div class="setting-desc">
+              <h4>Active Theme</h4>
+              <p>Change the colors, gradients, and caret accents.</p>
+            </div>
+            <div class="setting-control">
+              <label for="settings-theme-select" class="sr-only">Active Theme</label>
+              <select id="settings-theme-select" class="form-select">
+                <option value="theme-dark">Dark Mode</option>
+                <option value="theme-light">Light Mode</option>
+                <option value="theme-blue">Blue Ocean</option>
+                <option value="theme-purple">Cyberpunk Purple</option>
+                <option value="theme-green">Terminal Green</option>
+                <option value="theme-cyber">Cyber (Futuristic)</option>
+              </select>
+            </div>
+          </div>
+          <!-- Typography Size -->
+          <div class="setting-row">
+            <div class="setting-desc">
+              <h4>Font Size</h4>
+              <p>Adjust font sizing in typing practice screen.</p>
+            </div>
+            <div class="setting-control">
+              <label for="settings-font-size" class="sr-only">Font Size</label>
+              <select id="settings-font-size" class="form-select">
+                <option value="1.25rem">Small</option>
+                <option value="1.5rem">Medium (Default)</option>
+                <option value="1.8rem">Large</option>
+                <option value="2.2rem">Extra Large</option>
+              </select>
+            </div>
+          </div>
+          <!-- Font Family -->
+          <div class="setting-row">
+            <div class="setting-desc">
+              <h4>Font Family</h4>
+              <p>Change typing text family style.</p>
+            </div>
+            <div class="setting-control">
+              <label for="settings-font-family" class="sr-only">Font Family</label>
+              <select id="settings-font-family" class="form-select">
+                <option value="'Inter', sans-serif">Inter (Modern Sans)</option>
+                <option value="'Outfit', sans-serif">Outfit (Rounded Elegant)</option>
+                <option value="'Fira Code', monospace">Fira Code (Developer Mono)</option>
+                <option value="Courier New, monospace">Courier (Traditional Mono)</option>
+              </select>
+            </div>
+          </div>
+          <!-- Caret Color -->
+          <div class="setting-row">
+            <div class="setting-desc">
+              <h4>Caret Accent</h4>
+              <p>Modify key color of pulsing caret guide.</p>
+            </div>
+            <div class="setting-control">
+              <label for="settings-caret-color" class="sr-only">Caret Accent</label>
+              <select id="settings-caret-color" class="form-select">
+                <option value="var(--primary-color)">Theme Default</option>
+                <option value="#facc15">Bright Yellow</option>
+                <option value="#ec4899">Hot Pink</option>
+                <option value="#10b981">Emerald Green</option>
+                <option value="#3b82f6">Bright Blue</option>
+              </select>
+            </div>
+          </div>
+          <!-- Typing Sound Effects -->
+          <div class="setting-row">
+            <div class="setting-desc">
+              <h4>Sound Effects</h4>
+              <p>Mute or select custom synthesizer keysounds.</p>
+            </div>
+            <div class="setting-control flex flex-gap-10">
+              <label for="settings-sound-volume" class="sr-only">Sound volume</label>
+              <select id="settings-sound-volume" class="form-select">
+                <option value="off">Off (Mute)</option>
+                <option value="click">Mechanical Click</option>
+                <option value="beep">Retro Beep</option>
+                <option value="synthesizer">Synth Chime</option>
+              </select>
+            </div>
+          </div>
+          <!-- Accessibility High Contrast Toggle -->
+          <div class="setting-row">
+            <div class="setting-desc">
+              <h4>High Contrast Mode</h4>
+              <p>Increase textual visibility for visual impairment.</p>
+            </div>
+            <div class="setting-control">
+              <button class="btn btn-secondary btn-sm" id="accessibility-contrast-toggle">Toggle Contrast</button>
+            </div>
+          </div>
+          <!-- Countdown toggle -->
+          <div class="setting-row">
+            <div class="setting-desc">
+              <h4>Countdown Timer</h4>
+              <p>Show 3-second countdown buffer prior to typing start.</p>
+            </div>
+            <div class="setting-control">
+              <button class="btn btn-secondary btn-sm" id="settings-countdown-toggle">Enabled</button>
+            </div>
+          </div>
+          <!-- Keyboard toggle -->
+          <div class="setting-row">
+            <div class="setting-desc">
+              <h4>Virtual Keyboard</h4>
+              <p>Display visual keyboard guides during typing practice.</p>
+            </div>
+            <div class="setting-control">
+              <button class="btn btn-secondary btn-sm" id="settings-keyboard-toggle">Enabled</button>
+            </div>
+          </div>
+          <!-- Animations Toggle -->
+          <div class="setting-row">
+            <div class="setting-desc">
+              <h4>Animations & Transitions</h4>
+              <p>Toggle smooth graphic sliding and pulsing animations.</p>
+            </div>
+            <div class="setting-control">
+              <button class="btn btn-secondary btn-sm" id="settings-animations-toggle">Enabled</button>
+            </div>
+          </div>
+        </div>
+        <div class="settings-modal-footer">
+          <button class="btn btn-primary" id="save-settings-close-btn">Done & Save Preferences</button>
+        </div>
+      </div>
+    </div>
+    <!-- Custom Time Modal -->
+    <div class="settings-modal-overlay hide" id="custom-time-modal">
+      <div class="settings-modal glass-card modal-small">
+        <div class="settings-modal-header">
+          <h3>Set Custom Time</h3>
+        </div>
+        <div class="settings-modal-body text-center">
+          <label for="custom-time-input-val" class="form-label mb-10">Enter duration (in seconds):</label>
+          <input type="number" id="custom-time-input-val" class="form-input text-center max-w-150" min="5" max="3600" value="30">
+          <p class="text-xs text-muted mt-5">Min: 5s, Max: 3600s (60 minutes)</p>
+        </div>
+        <div class="settings-modal-footer">
+          <button class="btn btn-secondary" id="custom-time-cancel-btn">Cancel</button>
+          <button class="btn btn-primary" id="custom-time-confirm-btn">Confirm</button>
+        </div>
+      </div>
+    </div>
+    <!-- Main Footer -->
+    <footer class="main-footer text-center" role="contentinfo">
+      <p>&copy; 2026 TypeMaster Local. Built as a premium offline-first web tool. Version 1.0.0</p>
+      <p class="text-xs text-muted mt-5">Press <kbd>Esc</kbd> to restart. Press <kbd>Tab</kbd> then <kbd>Enter</kbd> to pause. All history is saved locally in browser.</p>
+    </footer>
+    
+  </div>
+  <!-- Core Javascript scripts -->
+  <script src="script.js"></script>
+</body>
+</html>
